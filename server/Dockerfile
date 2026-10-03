@@ -21,4 +21,4 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD ["deno", "eval", "const r = await fetch('http://127.0.0.1:8000/api'); Deno.exit(r.ok ? 0 : 1)"]
 
-CMD ["run", "--cached-only", "--frozen", "--allow-net", "--allow-env", "--allow-read=/app,/deno-dir", "main.ts"]
+CMD ["run", "--cached-only", "--frozen", "--allow-net", "--allow-env", "--allow-read=/app,/deno-dir", "--allow-sys=osRelease", "main.ts"]

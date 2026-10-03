@@ -1,5 +1,6 @@
 {
   "tasks": {
+
     "dev": "deno run --watch --allow-net --allow-env --allow-read --env-file main.ts",
     "test": "deno test",
     "ingest": "deno run --allow-read --allow-write ingest.ts ../../docs/src chunks.json",

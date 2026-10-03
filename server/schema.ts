@@ -5,7 +5,6 @@ const documentationChunkSchema = new mongoose.Schema(
     _id: {
       type: String,
       required: true,
-      index: true,
     },
     title: {
       type: String,
