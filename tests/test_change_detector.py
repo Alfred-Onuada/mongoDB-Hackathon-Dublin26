@@ -40,7 +40,9 @@ class DetectorTests(unittest.TestCase):
         (self.repo / "app.py").write_text("port = 8080\n", encoding="utf-8")
         head = self.commit()
         result = detector.detect_changes(self.repo, repository="team/demo")
-        self.assertEqual(result["files"], [{"path": "app.py", "status": "modified"}])
+        self.assertEqual(result["files"], [{"path": "app.py", "status": "modified", "file_url": f"https://github.com/team/demo/blob/{head}/app.py"}])
+        self.assertEqual(result["repository_url"], "https://github.com/team/demo")
+        self.assertEqual(result["commit_url"], f"https://github.com/team/demo/commit/{head}")
         self.assertEqual(result["before_sha"], self.first)
         self.assertEqual(result["after_sha"], head)
         self.assertIn("-port = 3000", result["diff"])
@@ -59,7 +61,19 @@ class DetectorTests(unittest.TestCase):
         (self.repo / "new file.py").write_text("new = True\n")
         self.commit()
         result = detector.detect_changes(self.repo)
-        self.assertEqual(result["files"], [{"path": "app.py", "status": "deleted"}, {"path": "new file.py", "status": "added"}])
+        self.assertEqual(result["files"], [{"path": "app.py", "status": "deleted", "file_url": None}, {"path": "new file.py", "status": "added", "file_url": None}])
+
+    def test_deleted_file_url_uses_previous_commit(self):
+        (self.repo / "app.py").unlink()
+        self.commit()
+        result = detector.detect_changes(self.repo, repository="team/demo")
+        self.assertEqual(result["files"][0]["file_url"], f"https://github.com/team/demo/blob/{self.first}/app.py")
+
+    def test_file_url_encodes_spaces_and_hashes(self):
+        (self.repo / "guide #1.md").write_text("Example")
+        head = self.commit()
+        result = detector.detect_changes(self.repo, repository="team/demo")
+        self.assertEqual(result["files"][0]["file_url"], f"https://github.com/team/demo/blob/{head}/guide%20%231.md")
 
     def test_first_commit(self):
         result = detector.detect_changes(self.repo)

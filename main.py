@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+from urllib.parse import quote
 
 
 class DetectionError(Exception):
@@ -35,6 +36,7 @@ def detect_changes(repo_dir, before=None, after="HEAD", repository=None, branch=
     """Return the net file changes between two commits, including multi-commit pushes."""
     repo = Path(repo_dir).resolve()
     after_sha = commit_sha(repo, after)
+    repository_url = f"https://github.com/{quote(repository, safe='/')}" if repository else None
 
     # Local runs compare the latest commit with its first parent by default.
     # A zero SHA from GitHub means a newly created branch: compare to an empty tree.
@@ -53,7 +55,14 @@ def detect_changes(repo_dir, before=None, after="HEAD", repository=None, branch=
     files = []
     for index in range(0, len(entries), 2):
         status = entries[index].decode("ascii")
-        files.append({"path": os.fsdecode(entries[index + 1]), "status": labels.get(status, status)})
+        path = os.fsdecode(entries[index + 1])
+        # Deleted files only exist in the old commit; other links show the new version.
+        file_sha = before_sha if status == "D" else after_sha
+        files.append({
+            "path": path,
+            "status": labels.get(status, status),
+            "file_url": f"{repository_url}/blob/{file_sha}/{quote(path, safe='/')}" if repository_url and file_sha else None,
+        })
 
     raw_diff = git(repo, "diff", "--no-ext-diff", "--no-textconv", "--no-renames", "--no-color", "--unified=3", baseline, after_sha, "--")
     if len(raw_diff) > 2_000_000:
@@ -64,6 +73,8 @@ def detect_changes(repo_dir, before=None, after="HEAD", repository=None, branch=
     return {
         "schema_version": 1,
         "repository": repository,
+        "repository_url": repository_url,
+        "commit_url": f"{repository_url}/commit/{after_sha}" if repository_url else None,
         "branch": branch,
         "before_sha": before_sha,
         "after_sha": after_sha,

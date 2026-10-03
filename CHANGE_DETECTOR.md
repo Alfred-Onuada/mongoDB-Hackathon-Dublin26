@@ -45,11 +45,16 @@ script runs once and exits; GitHub Actions supplies the automatic trigger.
 
 - `schema_version`: 1.
 - `repository`: owner/repo from GitHub, or an optional local label.
+- `repository_url`: clickable GitHub repository location, or null without a repository label.
+- `commit_url`: link to the exact new commit, or null without a repository label.
 - `branch`: event branch, local branch, or null for a detached local checkout.
 - `before_sha`, `after_sha`: compared commits.
 - `comparison`: `commits`, or `empty_tree` for a new branch/initial snapshot.
 - `changed_file_count`: number of files with net changes.
-- `files`: a list of `{ "path": "server/main.ts", "status": "modified" }` objects.
+- `files`: objects with `path`, `status`, and `file_url`. `path` is the location inside
+  the repository, such as `server/main.ts`. `file_url` links to that file at the exact
+  compared commit. For deleted files, it links to the old commit where the file existed.
+  Links are null without a repository label; spaces and special URL characters are encoded.
 - `diff`: raw unified Git diff with added and removed lines.
 - `notes`: interpretation details.
 
