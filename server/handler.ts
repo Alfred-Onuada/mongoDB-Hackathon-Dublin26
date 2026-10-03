@@ -1,10 +1,17 @@
 import { describeCode } from "./describe-code.ts";
+import type { DocMatch, DocSearch } from "./doc-search.ts";
 import type { GeminiClient } from "./gemini-client.ts";
+import { writeDocComment } from "./write-comment.ts";
 
 const MAX_CODE_LENGTH = 100_000;
+const DEFAULT_LIMIT = 5;
+const MAX_LIMIT = 20;
 
 export interface HandlerDeps {
   gemini: GeminiClient;
+  docSearch: DocSearch;
+  // Minimum vectorSearchScore for a doc chunk to count as related.
+  minScore: number;
 }
 
 export async function handler(
@@ -31,7 +38,7 @@ export async function handler(
 
 async function handleDescribe(
   req: Request,
-  { gemini }: HandlerDeps,
+  { gemini, docSearch, minScore }: HandlerDeps,
 ): Promise<Response> {
   if (req.method !== "POST") {
     return Response.json({ error: "Method not allowed" }, {
@@ -49,7 +56,10 @@ async function handleDescribe(
     });
   }
 
-  const { code } = (body ?? {}) as Record<string, unknown>;
+  const { code, limit = DEFAULT_LIMIT } = (body ?? {}) as Record<
+    string,
+    unknown
+  >;
   if (typeof code !== "string" || code.trim() === "") {
     return Response.json({ error: "`code` must be a non-empty string" }, {
       status: 400,
@@ -60,13 +70,41 @@ async function handleDescribe(
       error: `\`code\` must be at most ${MAX_CODE_LENGTH} characters`,
     }, { status: 413 });
   }
+  if (
+    typeof limit !== "number" || !Number.isInteger(limit) || limit < 1 ||
+    limit > MAX_LIMIT
+  ) {
+    return Response.json({
+      error: `\`limit\` must be an integer from 1 to ${MAX_LIMIT}`,
+    }, { status: 400 });
+  }
 
+  let description: string;
   try {
-    const description = await describeCode(gemini, code);
-    return Response.json({ description });
+    description = await describeCode(gemini, code);
   } catch (err) {
     console.error(err);
     return Response.json({ error: "Failed to describe code with Gemini" }, {
+      status: 502,
+    });
+  }
+
+  let matches: DocMatch[];
+  try {
+    matches = await docSearch.search(description, { limit, minScore });
+  } catch (err) {
+    console.error(err);
+    return Response.json({ error: "Failed to search documentation" }, {
+      status: 502,
+    });
+  }
+
+  try {
+    const comment = await writeDocComment(gemini, code, description, matches);
+    return Response.json({ description, matches, comment });
+  } catch (err) {
+    console.error(err);
+    return Response.json({ error: "Failed to write comment with Gemini" }, {
       status: 502,
     });
   }
