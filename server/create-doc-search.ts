@@ -11,9 +11,9 @@ import Documentation from "./schema.ts";
 export async function createDocSearch(
   indexName = DEFAULT_INDEX_NAME,
 ): Promise<DocSearch> {
-  const uri = Deno.env.get("MONGODB_URI");
-  if (!uri) throw new Error("MONGODB_URI is not set");
-  await mongoose.connect(uri, { dbName: Deno.env.get("MONGODB_DB_NAME") });
+  const url = Deno.env.get("MONGODB_URL");
+  if (!url) throw new Error("MONGODB_URL is not set");
+  await mongoose.connect(url, { dbName: Deno.env.get("MONGODB_DB_NAME") });
 
   const collection = Documentation.collection;
   const indexes = await collection.listSearchIndexes()
