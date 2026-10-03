@@ -1,10 +1,13 @@
 {
   "tasks": {
     "dev": "deno run --watch --allow-net --allow-env --allow-read --env-file main.ts",
-    "test": "deno test"
+    "test": "deno test",
+    "ingest": "deno run --allow-read --allow-write ingest.ts ../../docs/src chunks.json",
+    "load": "deno run --allow-net --allow-env --allow-read --allow-sys --env-file load.ts"
   },
   "imports": {
     "@google/genai": "npm:@google/genai@^2.26.0",
-    "@std/assert": "jsr:@std/assert@1"
+    "@std/assert": "jsr:@std/assert@1",
+    "mongoose": "npm:mongoose@^9.10.2"
   }
 }
