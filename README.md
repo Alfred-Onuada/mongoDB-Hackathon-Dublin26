@@ -4,6 +4,10 @@ DocDrift finds the documentation that a code change makes incorrect. It reads
 the diff of a pull request (PR). Then it writes a PR comment with links to the
 documentation sections that need an update.
 
+Live service: <https://mongodb-hackathon-dublin26-git-wzji4n5axq-ew.a.run.app>
+
+![Architecture diagram](docs/images/architecture.png)
+
 ## The problem
 
 Code changes fast. Documentation does not change at the same speed. A
@@ -24,10 +28,7 @@ does this check on each PR.
    incorrect, missing, or out of date.
 6. The workflow writes the review comment on the PR.
 
-DocDrift does not compare the code directly with the documentation. Code and
-prose use different words for the same idea. Thus their embeddings are far
-apart. A prose description uses the words of the documentation, so the search
-finds better matches.
+Read [GitHub Actions workflow](docs/github-action.md) for the full procedure.
 
 The demo database contains the LangChain Python documentation.
 
@@ -49,7 +50,6 @@ before you push the file.
 
 Example: the
 [langchain-demo workflow](https://github.com/blagoySimandov/langchain-demo/blob/master/.github/workflows/docsdb-bot.yaml).
-Read [GitHub Actions workflow](docs/github-action.md) for the full procedure.
 
 ```yaml
 name: Get full PR diff
@@ -88,10 +88,6 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           body-path: ${{ runner.temp }}/comment.md
 ```
-
-Live service: <https://mongodb-hackathon-dublin26-git-wzji4n5axq-ew.a.run.app>
-
-![Architecture diagram](docs/images/architecture.png)
 
 ## Quick start
 
