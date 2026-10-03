@@ -1,0 +1,6 @@
+{
+  "workspace": ["./server"],
+  "tasks": {
+    "test": "deno test"
+  }
+}

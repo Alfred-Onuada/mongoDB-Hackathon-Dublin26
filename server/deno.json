@@ -1,8 +1,10 @@
 {
   "tasks": {
-    "dev": "deno run --watch --allow-net main.ts"
+    "dev": "deno run --watch --allow-net --allow-env --allow-read --env-file main.ts",
+    "test": "deno test"
   },
   "imports": {
+    "@google/genai": "npm:@google/genai@^2.26.0",
     "@std/assert": "jsr:@std/assert@1"
   }
 }
