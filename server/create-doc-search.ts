@@ -8,12 +8,16 @@ import {
 } from "./doc-search.ts";
 import Documentation from "./schema.ts";
 
+const DEFAULT_DB_NAME = "hackathon";
+
 export async function createDocSearch(
   indexName = DEFAULT_INDEX_NAME,
 ): Promise<DocSearch> {
   const url = Deno.env.get("MONGODB_URL");
   if (!url) throw new Error("MONGODB_URL is not set");
-  await mongoose.connect(url, { dbName: Deno.env.get("MONGODB_DB_NAME") });
+  await mongoose.connect(url, {
+    dbName: Deno.env.get("MONGODB_DB_NAME") || DEFAULT_DB_NAME,
+  });
 
   const collection = Documentation.collection;
   const indexes = await collection.listSearchIndexes()
