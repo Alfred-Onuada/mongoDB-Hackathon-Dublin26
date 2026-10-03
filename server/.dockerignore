@@ -1,0 +1,5 @@
+*
+!deno.json
+!deno.lock
+!*.ts
+*_test.ts
