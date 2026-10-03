@@ -2,5 +2,8 @@
   "workspace": ["./server"],
   "tasks": {
     "test": "deno test"
+  },
+  "imports": {
+    "mongoose": "npm:mongoose@^9.10.2"
   }
 }

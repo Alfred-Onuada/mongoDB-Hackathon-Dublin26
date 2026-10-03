@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const documentationChunkSchema = new mongoose.Schema(
   {
@@ -8,6 +8,7 @@ const documentationChunkSchema = new mongoose.Schema(
       index: true
     },
     title: {
+      
       type: String,
       required: true
     },
@@ -42,9 +43,9 @@ const documentationChunkSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
-});
+  },
+);
 
-const Documentation = mongoose.model("Documentation", documentationSchema);
+const Documentation = mongoose.model("Documentation", documentationChunkSchema);
 
-module.exports = Documentation;
+export default Documentation;
