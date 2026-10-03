@@ -49,7 +49,7 @@ async function handleDescribe(
     });
   }
 
-  const { code, language } = (body ?? {}) as Record<string, unknown>;
+  const { code } = (body ?? {}) as Record<string, unknown>;
   if (typeof code !== "string" || code.trim() === "") {
     return Response.json({ error: "`code` must be a non-empty string" }, {
       status: 400,
@@ -60,14 +60,9 @@ async function handleDescribe(
       error: `\`code\` must be at most ${MAX_CODE_LENGTH} characters`,
     }, { status: 413 });
   }
-  if (language !== undefined && typeof language !== "string") {
-    return Response.json({ error: "`language` must be a string" }, {
-      status: 400,
-    });
-  }
 
   try {
-    const description = await describeCode(gemini, code, language);
+    const description = await describeCode(gemini, code);
     return Response.json({ description });
   } catch (err) {
     console.error(err);

@@ -8,16 +8,15 @@ Write a concise plain-prose description of what the code does: its purpose, the 
 Mention notable side effects or edge cases.
 Do not repeat the code, do not use code blocks, and do not add headings or preamble.`;
 
-export function buildDescribePrompt(code: string, language?: string): string {
-  return `${INSTRUCTIONS}\n\n\`\`\`${language ?? ""}\n${code}\n\`\`\``;
+export function buildDescribePrompt(code: string): string {
+  return `${INSTRUCTIONS}\n\n\`\`\`\n${code}\n\`\`\``;
 }
 
 export async function describeCode(
   gemini: GeminiClient,
   code: string,
-  language?: string,
 ): Promise<string> {
-  const description = (await gemini.ask(buildDescribePrompt(code, language)))
+  const description = (await gemini.ask(buildDescribePrompt(code)))
     .trim();
   if (!description) throw new Error("Gemini returned an empty description");
   return description;

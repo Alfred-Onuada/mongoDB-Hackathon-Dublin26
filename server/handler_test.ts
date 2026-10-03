@@ -41,14 +41,14 @@ Deno.test("/api/describe returns Gemini's description", async () => {
   );
 
   const res = await handler(
-    describeRequest({ code: "const add = (a, b) => a + b;", language: "js" }),
+    describeRequest({ code: "const add = (a, b) => a + b;" }),
     { gemini },
   );
 
   assertEquals(res.status, 200);
   assertEquals(await res.json(), { description: "Adds two numbers." });
   assertEquals(prompts.length, 1);
-  assertStringIncludes(prompts[0], "```js\nconst add = (a, b) => a + b;\n```");
+  assertStringIncludes(prompts[0], "```\nconst add = (a, b) => a + b;\n```");
 });
 
 Deno.test("/api/describe rejects non-POST", async () => {
